@@ -129,7 +129,7 @@ describe('💪 肌肉書僮 - 核心算力單元測試 (Unit Tests)', () => {
       expect(stopPrice).toBe(110);
     });
 
-    it('永豐金籌碼評估：主力集中度負向且法人賣超應回傳 bearish 且收緊 ATR 防守倍數', () => {
+    it('永豐金籌碼評估：主力集中度負向且法人賣超應回傳 bearish 且收緊 ATR 防守倍數 (1.25x)', () => {
       const bearishChips = {
         majorBrokerConcentration: -5.5,
         majorBrokerNetVolume: -1000,
@@ -143,6 +143,28 @@ describe('💪 肌肉書僮 - 核心算力單元測試 (Unit Tests)', () => {
       const result = evaluateYunfengChipRisk(bearishChips);
       expect(result.level).toBe('bearish');
       expect(result.atrMultiplier).toBe(1.25);
+    });
+
+    it('永豐金籌碼評估：主力集中度 > 10% 且千張大戶控盤應回傳 bullish (2.5x)', () => {
+      const bullishChips = {
+        majorBrokerConcentration: 15.2,
+        majorBrokerNetVolume: 3000,
+        foreignNetBuy: 2000,
+        investmentTrustNetBuy: 1500,
+        dealerNetBuy: 200,
+        largeHolder400Ratio: 75,
+        largeHolder1000Ratio: 58,
+        largeHolderChangeTrend: 'accumulate' as const,
+      };
+      const result = evaluateYunfengChipRisk(bullishChips);
+      expect(result.level).toBe('bullish');
+      expect(result.atrMultiplier).toBe(2.5);
+    });
+
+    it('永豐金籌碼評估：未輸入籌碼時應預設回傳 neutral 並使用 2.0x 倍數', () => {
+      const result = evaluateYunfengChipRisk(undefined);
+      expect(result.level).toBe('neutral');
+      expect(result.atrMultiplier).toBe(2.0);
     });
   });
 });
