@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle } from 'lucide-react';
 
 export default function Home() {
-  const { state, loading, error, refresh } = useDashboardState();
+  const { state, loading, error, updateFromWizard, refresh } = useDashboardState();
   const [showWizard, setShowWizard] = useState(false);
 
   if (loading) {
@@ -70,7 +70,10 @@ export default function Home() {
         {/* 參數輸入向導 */}
         {showWizard && (
           <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-            <InputWizard />
+            <InputWizard onSubmit={(wizardData) => {
+              updateFromWizard(wizardData);
+              setShowWizard(false);
+            }} />
           </div>
         )}
 

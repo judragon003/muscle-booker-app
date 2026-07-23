@@ -4,7 +4,14 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { DashboardState, Account, MarketData, RiskIndicators, TradeAction } from '@/lib/types';
-import { generateSampleDashboardState } from '@/lib/sampleData';
+import type { WizardData } from '@/components/InputWizard';
+import {
+  generateSampleDashboardState,
+  generateSampleMarketData,
+  generateRiskIndicators,
+  generateTradeActions
+} from '@/lib/sampleData';
+import { calculateNetPnL } from '@/lib/calculations';
 
 export function useDashboardState() {
   const [state, setState] = useState<DashboardState | null>(null);
@@ -19,6 +26,65 @@ export function useDashboardState() {
       setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : '初始化失敗');
+      setLoading(false);
+    }
+  }, []);
+
+  // 從 WizardData 更新狀態
+  const updateFromWizard = useCallback((wizardData: WizardData) => {
+    setLoading(true);
+    try {
+      const marketData = generateSampleMarketData();
+      marketData.symbol = wizardData.symbol || '0050';
+      marketData.currentPrice = wizardData.currentPrice || marketData.currentPrice;
+
+      const quantity = wizardData.quantity;
+      const costBasis = wizardData.costBasis;
+      const availableCash = wizardData.availableCash;
+
+      const stockValue = quantity * marketData.currentPrice;
+      const totalAssets = stockValue + availableCash;
+      const stockRatio = totalAssets > 0 ? (stockValue / totalAssets) * 100 : 0;
+      const cashRatio = totalAssets > 0 ? (availableCash / totalAssets) * 100 : 0;
+
+      const pnl = calculateNetPnL(costBasis, marketData.currentPrice, quantity, true);
+
+      const account: Account = {
+        totalAssets,
+        stockValue,
+        availableCash,
+        stockRatio,
+        cashRatio,
+        positions: [
+          {
+            symbol: marketData.symbol,
+            name: marketData.name,
+            quantity,
+            costBasis,
+            currentPrice: marketData.currentPrice,
+            unrealizedPnL: pnl.unrealizedPnL,
+            unrealizedReturn: pnl.unrealizedReturn,
+            netPnL: pnl.netPnL,
+            netReturn: pnl.netReturn,
+            isETF: true,
+          },
+        ],
+      };
+
+      const riskIndicators = generateRiskIndicators(account, marketData);
+      const tradeActions = generateTradeActions(account, marketData, riskIndicators);
+
+      setState({
+        account,
+        marketData,
+        riskIndicators,
+        tradeActions,
+        lastUpdated: new Date(),
+      });
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '更新失敗');
+    } finally {
       setLoading(false);
     }
   }, []);
@@ -61,6 +127,7 @@ export function useDashboardState() {
     state,
     loading,
     error,
+    updateFromWizard,
     updateAccount,
     updateMarketData,
     updateRiskIndicators,
@@ -68,3 +135,4 @@ export function useDashboardState() {
     refresh,
   };
 }
+

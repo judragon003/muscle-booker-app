@@ -14,8 +14,14 @@ const URLS_TO_CACHE = [
 // 安裝事件
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(URLS_TO_CACHE);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const url of URLS_TO_CACHE) {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          // 忽略個別快取失敗，防止 SW 安裝中斷
+        }
+      }
     })
   );
   self.skipWaiting();
