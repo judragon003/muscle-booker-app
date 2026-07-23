@@ -451,3 +451,48 @@ export function calculateProfitTaking(
     totalCash: availableCash + netProceeds,
   };
 }
+
+/**
+ * 評估永豐金籌碼風險與主力分點戰術
+ */
+export function evaluateYunfengChipRisk(chips?: import('./types').YunfengChipData): {
+  score: number;
+  level: "bullish" | "bearish" | "neutral";
+  message: string;
+  atrMultiplier: number;
+} {
+  if (!chips) {
+    return {
+      score: 0,
+      level: "neutral",
+      message: "未輸入永豐金籌碼，採用標準 ATR 2.0 倍防守線",
+      atrMultiplier: 2.0,
+    };
+  }
+
+  const { majorBrokerConcentration, foreignNetBuy, investmentTrustNetBuy, largeHolder1000Ratio } = chips;
+  const netInstitutional = foreignNetBuy + investmentTrustNetBuy;
+
+  if (majorBrokerConcentration < 0 && netInstitutional < 0) {
+    return {
+      score: -3,
+      level: "bearish",
+      message: "🚨 永豐金籌碼警示：主力分點與法人雙向賣超！自動提防至 1.25 倍 ATR 嚴格停利線",
+      atrMultiplier: 1.25,
+    };
+  } else if (majorBrokerConcentration > 10 && netInstitutional > 1000 && largeHolder1000Ratio > 50) {
+    return {
+      score: 3,
+      level: "bullish",
+      message: "🟢 永豐金籌碼強勢：千張大戶控盤且主力集中度 > 10%，允許箱頂突破加碼策略",
+      atrMultiplier: 2.5,
+    };
+  } else {
+    return {
+      score: 0,
+      level: "neutral",
+      message: "永豐金籌碼中性，維持 2.0 倍 ATR 移動防守",
+      atrMultiplier: 2.0,
+    };
+  }
+}

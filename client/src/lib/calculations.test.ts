@@ -14,6 +14,7 @@ import {
   evaluateMAArrangement,
   evaluateKDCross,
   evaluateRSI,
+  evaluateYunfengChipRisk,
 } from './calculations';
 
 describe('💪 肌肉書僮 - 核心算力單元測試 (Unit Tests)', () => {
@@ -126,6 +127,22 @@ describe('💪 肌肉書僮 - 核心算力單元測試 (Unit Tests)', () => {
       const stopPrice = calculateTrailingStopPrice(120, 5, 2, 100);
       // 120 - 2*5 = 110 > 100 支撐
       expect(stopPrice).toBe(110);
+    });
+
+    it('永豐金籌碼評估：主力集中度負向且法人賣超應回傳 bearish 且收緊 ATR 防守倍數', () => {
+      const bearishChips = {
+        majorBrokerConcentration: -5.5,
+        majorBrokerNetVolume: -1000,
+        foreignNetBuy: -500,
+        investmentTrustNetBuy: -300,
+        dealerNetBuy: 0,
+        largeHolder400Ratio: 60,
+        largeHolder1000Ratio: 45,
+        largeHolderChangeTrend: 'distribute' as const,
+      };
+      const result = evaluateYunfengChipRisk(bearishChips);
+      expect(result.level).toBe('bearish');
+      expect(result.atrMultiplier).toBe(1.25);
     });
   });
 });

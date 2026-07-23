@@ -2,6 +2,18 @@
  * 肌肉書僮數據類型定義
  */
 
+// ============ 永豐金籌碼數據 ============
+export interface YunfengChipData {
+  majorBrokerConcentration: number; // 主力集中度 %
+  majorBrokerNetVolume: number;     // 主力買賣超 (張)
+  foreignNetBuy: number;            // 外資買賣超 (張)
+  investmentTrustNetBuy: number;    // 投信買賣超 (張)
+  dealerNetBuy: number;             // 自營商買賣超 (張)
+  largeHolder400Ratio: number;      // 400張大戶持股比率 (%)
+  largeHolder1000Ratio: number;     // 1000張大戶持股比率 (%)
+  largeHolderChangeTrend: 'accumulate' | 'distribute' | 'neutral';
+}
+
 // ============ 市場數據 ============
 export interface MarketData {
   symbol: string;
@@ -18,6 +30,9 @@ export interface MarketData {
   financingChange: number; // 融資變化（張）
   institutionalBuyVolume: number; // 法人買超（張）
   institutionalSellVolume: number; // 法人賣超（張）
+
+  // 永豐金籌碼模組
+  yunfengChips?: YunfengChipData;
   
   // 券商買賣比
   brokerBuyRatio: number; // 前 5 大券商買進比率
