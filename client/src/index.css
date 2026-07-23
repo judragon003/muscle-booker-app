@@ -1,0 +1,278 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* 肌肉書僮品牌字體導入 */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* 肌肉書僮品牌色彩系統 */
+  --primary: oklch(0.72 0.22 40); /* 金色強調色 */
+  --primary-foreground: oklch(0.15 0.01 280); /* 深灰背景 */
+  --sidebar-primary: oklch(0.72 0.22 40);
+  --sidebar-primary-foreground: oklch(0.95 0.01 280);
+  
+  /* 圖表顏色 */
+  --chart-1: oklch(0.72 0.22 40); /* 金色 */
+  --chart-2: oklch(0.60 0.20 140); /* 綠色 */
+  --chart-3: oklch(0.65 0.25 25); /* 紅色 */
+  --chart-4: oklch(0.70 0.02 280); /* 淡灰 */
+  --chart-5: oklch(0.50 0.15 280); /* 深灰 */
+  
+  --radius: 0.65rem;
+  --background: oklch(0.15 0.01 280); /* 深灰藍主背景 */
+  --foreground: oklch(0.95 0.01 280); /* 接近白色文字 */
+  --card: oklch(0.22 0.01 280); /* 卡片背景 */
+  --card-foreground: oklch(0.95 0.01 280);
+  --popover: oklch(0.22 0.01 280);
+  --popover-foreground: oklch(0.95 0.01 280);
+  --secondary: oklch(0.30 0.01 280);
+  --secondary-foreground: oklch(0.70 0.02 280);
+  --muted: oklch(0.30 0.01 280);
+  --muted-foreground: oklch(0.70 0.02 280);
+  --accent: oklch(0.72 0.22 40); /* 金色強調 */
+  --accent-foreground: oklch(0.15 0.01 280);
+  --destructive: oklch(0.65 0.25 25); /* 紅色警示 */
+  --destructive-foreground: oklch(0.95 0.01 280);
+  --border: oklch(0.30 0.01 280);
+  --input: oklch(0.22 0.01 280);
+  --ring: oklch(0.72 0.22 40);
+  --sidebar: oklch(0.22 0.01 280);
+  --sidebar-foreground: oklch(0.95 0.01 280);
+  --sidebar-accent: oklch(0.72 0.22 40);
+  --sidebar-accent-foreground: oklch(0.15 0.01 280);
+  --sidebar-border: oklch(0.30 0.01 280);
+  --sidebar-ring: oklch(0.72 0.22 40);
+  
+  /* 肌肉書僮自訂色彩 */
+  --color-muscle-gold: oklch(0.72 0.22 40);
+  --color-muscle-green: oklch(0.60 0.20 140);
+  --color-muscle-red: oklch(0.65 0.25 25);
+  --color-muscle-dark: oklch(0.15 0.01 280);
+  --color-muscle-card: oklch(0.22 0.01 280);
+  --color-muscle-text: oklch(0.95 0.01 280);
+  --color-muscle-text-secondary: oklch(0.70 0.02 280);
+}
+
+.dark {
+  /* 肌肉書僮深色模式（預設） */
+  --primary: oklch(0.72 0.22 40);
+  --primary-foreground: oklch(0.15 0.01 280);
+  --sidebar-primary: oklch(0.72 0.22 40);
+  --sidebar-primary-foreground: oklch(0.95 0.01 280);
+  --background: oklch(0.15 0.01 280);
+  --foreground: oklch(0.95 0.01 280);
+  --card: oklch(0.22 0.01 280);
+  --card-foreground: oklch(0.95 0.01 280);
+  --popover: oklch(0.22 0.01 280);
+  --popover-foreground: oklch(0.95 0.01 280);
+  --secondary: oklch(0.30 0.01 280);
+  --secondary-foreground: oklch(0.70 0.02 280);
+  --muted: oklch(0.30 0.01 280);
+  --muted-foreground: oklch(0.70 0.02 280);
+  --accent: oklch(0.72 0.22 40);
+  --accent-foreground: oklch(0.15 0.01 280);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.95 0.01 280);
+  --border: oklch(0.30 0.01 280);
+  --input: oklch(0.22 0.01 280);
+  --ring: oklch(0.72 0.22 40);
+  --chart-1: oklch(0.72 0.22 40);
+  --chart-2: oklch(0.60 0.20 140);
+  --chart-3: oklch(0.65 0.25 25);
+  --chart-4: oklch(0.70 0.02 280);
+  --chart-5: oklch(0.50 0.15 280);
+  --sidebar: oklch(0.22 0.01 280);
+  --sidebar-foreground: oklch(0.95 0.01 280);
+  --sidebar-accent: oklch(0.72 0.22 40);
+  --sidebar-accent-foreground: oklch(0.15 0.01 280);
+  --sidebar-border: oklch(0.30 0.01 280);
+  --sidebar-ring: oklch(0.72 0.22 40);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-display {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* 肌肉書僮字體系統 */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  h1 {
+    @apply text-4xl font-extrabold tracking-tight;
+  }
+  
+  h2 {
+    @apply text-2xl font-bold tracking-tight;
+  }
+  
+  h3 {
+    @apply text-xl font-semibold;
+  }
+  
+  code, pre {
+    @apply font-mono;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+  
+  /* 肌肉書僮按鈕動畫 */
+  button {
+    @apply transition-transform duration-160 ease-out;
+  }
+  
+  button:active:not(:disabled) {
+    @apply scale-95;
+  }
+}
+
+@layer components {
+  /* 肌肉書僮自訂組件 */
+  
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+  
+  /* 肌肉書僮卡片樣式 */
+  .muscle-card {
+    @apply bg-card text-card-foreground rounded-lg border border-border p-6 shadow-lg transition-all duration-200;
+  }
+  
+  .muscle-card:hover {
+    @apply shadow-xl translate-y-[-2px];
+  }
+  
+  /* 肌肉書僮指標燈號 */
+  .indicator-light {
+    @apply w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold;
+  }
+  
+  .indicator-safe {
+    @apply bg-green-500/20 text-green-400;
+  }
+  
+  .indicator-warning {
+    @apply bg-yellow-500/20 text-yellow-400;
+  }
+  
+  .indicator-danger {
+    @apply bg-red-500/20 text-red-400;
+  }
+  
+  /* 肌肉書僮按鈕 */
+  .muscle-button {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-160 active:scale-95;
+  }
+  
+  .muscle-button-primary {
+    @apply bg-accent text-accent-foreground hover:shadow-lg hover:shadow-accent/50;
+  }
+  
+  .muscle-button-danger {
+    @apply bg-destructive text-destructive-foreground hover:shadow-lg hover:shadow-destructive/50;
+  }
+  
+  /* 肌肉書僮數據文字 */
+  .data-mono {
+    @apply font-mono text-lg font-semibold;
+  }
+  
+  .data-value {
+    @apply text-accent font-bold;
+  }
+  
+  .data-positive {
+    @apply text-green-400;
+  }
+  
+  .data-negative {
+    @apply text-red-400;
+  }
+}
