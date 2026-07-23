@@ -103,6 +103,12 @@ export interface RiskIndicators {
     level: "overbought" | "oversold" | "neutral";
     message: string;
   };
+  yunfengChipRisk?: {
+    score: number;
+    level: "bullish" | "bearish" | "neutral";
+    message: string;
+    atrMultiplier: number;
+  };
   atrTrailingStop: number;
 }
 

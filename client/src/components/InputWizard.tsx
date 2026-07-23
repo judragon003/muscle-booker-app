@@ -1,6 +1,6 @@
 /**
  * 肌肉書僮互動式參數輸入卡片
- * 模組一：/grill-me 互動式參數輸入向導
+ * 模組一：/grill-me 互動式參數輸入向導 (含永豐金籌碼模組)
  */
 
 import { useState } from 'react';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronRight, ChevronLeft, Upload, FileCheck } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileCheck } from 'lucide-react';
 import type { YunfengChipData } from '@/lib/types';
 
 interface InputWizardProps {
@@ -68,11 +68,11 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
   const handleNext = () => {
     if (step === 'basic') setStep('market');
     else if (step === 'market') setStep('friction');
-    else if (step === 'friction') setStep('sinopac');
+    else if (step === 'friction') setStep('chips');
   };
 
   const handlePrev = () => {
-    if (step === 'sinopac') setStep('friction');
+    if (step === 'chips') setStep('friction');
     else if (step === 'friction') setStep('market');
     else if (step === 'market') setStep('basic');
   };
@@ -232,64 +232,7 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
             </div>
           </TabsContent>
 
-          {/* 步驟 D：永豐金籌碼數據與照片 */}
-          <TabsContent value="sinopac" className="space-y-4">
-            <div className="border border-accent/40 bg-accent/5 rounded-lg p-4 space-y-3">
-              <p className="text-sm font-bold text-accent">📸 上傳永豐金 App 籌碼截圖 (選填)</p>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="bg-input border-border text-xs cursor-pointer"
-              />
-              {data.chipScreenshotUrl && (
-                <div className="mt-2">
-                  <p className="text-xs text-muted-foreground mb-1">截圖預覽：</p>
-                  <img
-                    src={data.chipScreenshotUrl}
-                    alt="永豐金籌碼截圖"
-                    className="max-h-40 rounded border border-border object-contain"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sinopacBrokerConcentration">分點主力集中度 (%)</Label>
-                <Input
-                  id="sinopacBrokerConcentration"
-                  type="number"
-                  step="0.1"
-                  value={data.sinopacBrokerConcentration ?? ''}
-                  onChange={(e) => handleInputChange('sinopacBrokerConcentration', parseFloat(e.target.value) || 0)}
-                  placeholder="例: 12.5"
-                  className="bg-input border-border"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="institutionalNetBuy">三大法人買賣超 (張)</Label>
-                <Input
-                  id="institutionalNetBuy"
-                  type="number"
-                  value={data.institutionalNetBuy ?? ''}
-                  onChange={(e) => handleInputChange('institutionalNetBuy', parseInt(e.target.value) || 0)}
-                  placeholder="例: 3500"
-                  className="bg-input border-border"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="majorHolderRatio">大戶持股比例 (%)</Label>
-                <Input
-                  id="majorHolderRatio"
-                  type="number"
-                  step="0.1"
-                  value={data.majorHolderRatio ?? ''}
-                  onChange={(e) => handleInputChange('majorHolderRatio', parseFloat(e.target.value) || 0)}
-                  placeholder="例: 68.2"
-          {/* 步驟 D：永豐金籌碼與分點數據 */}
+          {/* 步驟 D：永豐金籌碼數據與分點 */}
           <TabsContent value="chips" className="space-y-4">
             <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 flex items-center justify-between">
               <div>
