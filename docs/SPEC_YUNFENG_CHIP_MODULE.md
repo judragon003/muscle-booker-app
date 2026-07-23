@@ -1,65 +1,62 @@
-# 📐 肌肉書僮 - 永豐金籌碼照片/分點數據風控技術規格書 (SPEC_YUNFENG_CHIP_MODULE.md)
+# 📐 肌肉書僮 - 證交所/櫃買 OpenAPI 自動抓取與永豐金 T-1 籌碼風控規格書 (SPEC_YUNFENG_CHIP_MODULE.md)
 
-> 本規格書嚴格遵循 Matt Pocock Skills 之 `/to-spec` 規範產出，並結合 `CONTEXT.md` 領域語言與 `AGENTS.md` 防禦性開發原則。
+> 本規格書依據 Matt Pocock Skills `/to-spec` 模板全新升級，整合 TWSE/TPEx 官方開放 API 自動化抓取與永豐金 T-1 券商分點籌碼算力。
 
 ---
 
 ## 🎯 Problem Statement (問題陳述)
 
-身為台股波段交易者（肌肉書僮使用者），在進行風控與位階試算時，由於券商 App（如永豐金大戶投）個人帳務及分點籌碼無公開 API 可直接聯網抓取，過去僅能使用大盤或隨機資料，無法將手邊真實的永豐金主力分點集中度、三大法人買賣超與大戶持股比率即時融入「肌肉書僮箱子戰術」防守體系，導致風控決策與真實籌碼脫節。
+1. **手動輸入負擔**：三大法人買賣超 (外資/投信/自營商) 與大戶持股比例 (400張/1000張) 為官方公開權威數據，手動填寫繁瑣且易出錯。
+2. **時間差對齊 (T-1 時間軸)**：籌碼數據（大戶集保與券商分點）在台股盤後或次日才揭露（如今天是 7/23，能取得的最完整籌碼為 7/22 T-1 盤後數據）。過去系統缺乏交易日對應與永豐金 TOP15 分點買賣超轉換邏輯。
 
 ---
 
 ## 💡 Solution (解決方案)
 
-在「參數設定」模組 (`InputWizard.tsx`) 中，新增獨立的 **「步驟 D：永豐金籌碼數據與截圖」** 頁籤。
-允許使用者手動填寫或上傳永豐金 App 籌碼頁面數據（主力集中度%、法人買賣超張數、400/1000張大戶持股比率），系統自動校驗格式並帶入 `evaluateYunfengChipRisk` 核心算力引擎。
-當籌碼顯示主力與法人雙向賣超時，自動觸發高防禦性保護（將 ATR 動態停利線倍數由 2.0 縮緊至 1.25 倍）；當籌碼顯示千張大戶加碼且主力集中度強勢時，開啟箱頂突破加碼策略。
+1. **TWSE / TPEx 官方 OpenAPI 自動捕捉引擎 (`twseOpenApi.ts`)**:
+   - 直連臺灣證券交易所 OpenAPI (`https://openapi.twse.com.tw/#/`) 與櫃買中心 OpenAPI (`https://www.tpex.org.tw/openapi/#/`)。
+   - 點擊「🌐 一鍵自動抓取官方籌碼」，自動拉取最新三大法人買賣超張數與大戶持股比率，免去手動輸入。
+
+2. **永豐金 T-1 券商分點 TOP15 集中度模組**:
+   - 標註「籌碼基準日 (T-1 日: 如 2026-07-22)」，確保與 T 日 (2026-07-23) 即時股價精密對齊。
+   - 提供永豐金 App 專用「TOP15 分點買超 / 賣超張數」輸入，自動試算主力集中度 (%)：
+     $$\text{主力集中度 (\%)} = \frac{\sum \text{Top15 買超張數} - \sum \text{Top15 賣超張數}}{\text{當日總成交量}} \times 100$$
 
 ---
 
 ## 👤 User Stories (使用者故事)
 
-1. **身為台股交易者**，我希望能在參數設定卡片第四步輸入永豐金主力集中度 (%)，以便系統評估主力控盤意圖。
-2. **身為台股交易者**，我希望能在介面中輸入外資、投信、自營商三大法人買賣超張數，以便精確掌握籌碼流向。
-3. **身為台股交易者**，我希望能填入 400 張與 1000 張大戶持股比率 (%)，以便系統分辨籌碼是在沉澱還是渙散。
-4. **身為台股交易者**，我希望點擊「帶入範例數據」時能一鍵載入真實波段籌碼範例，方便快速測試箱子戰術。
-5. **身為台股交易者**，當籌碼顯示主力與法人同步大賣時，我希望系統能自動縮緊 ATR 移動停利線（至 1.25 倍），協助我提早落袋防守。
+1. **身為交易者**，我希望點擊「一鍵自動抓取官方籌碼」時，系統能自動從 TWSE/TPEx 官方 OpenAPI 抓取最新的外資、投信、自營商買賣超張數與大戶持股比率，省去手動輸入時間。
+2. **身為交易者**，我希望能明確看到籌碼資料日期標記（如 T-1 日 2026-07-22），知道當前的風控決策是基於昨日盤後籌碼配合今日即時股價進行評估。
+3. **身為永豐金 App 使用者**，我希望能根據永豐金「券商分點」頁面的 TOP15 買賣超數據輸入，由系統自動算出主力集中度 (%) 與買賣淨張數。
+4. **身為交易者**，當 TWSE 官方 API 三大法人同步賣超且前一日主力分點集中度為負時，系統能自動觸發 1.25x ATR 的高防禦性停利保護。
 
 ---
 
 ## 🛠️ Implementation Decisions (實務實現決策)
 
-* **數據型別定義 (`YunfengChipData`)**:
-  包含 `majorBrokerConcentration`, `majorBrokerNetVolume`, `foreignNetBuy`, `investmentTrustNetBuy`, `dealerNetBuy`, `largeHolder400Ratio`, `largeHolder1000Ratio`。
-* **元件分層與 UI 佈局 (`InputWizard.tsx`)**:
-  採四步驟 Tabs 設計（A 標的庫存 -> B 即時數據 -> C 摩擦成本 -> D 永豐金籌碼），在步驟 D 提交時觸發 `onSubmit(data)`。
-* **風控算力整合 (`calculations.ts`)**:
-  由 `evaluateYunfengChipRisk` 評估籌碼分數，當分數偏空時調整 `atrMultiplier` 為 1.25；偏多時調整為 2.5。
-* **狀態重算與自動更新 (`useDashboardState.ts`)**:
-  當參數提交或點擊「刷新」時，以 `updateFromWizard` 或 `fetchRealStockData` 即時重新計算全套 Dashboard 狀態。
+* **官方 OpenAPI 模組 (`client/src/lib/twseOpenApi.ts`)**:
+  - 調用 TWSE API 端點：三大法人買賣超日報 (`/v1/fund/T86`)、個股日成交 (`/v1/exchangeReport/STOCK_DAY`)。
+  - 對於上市 (TW) / 上櫃 (TWO) 股票自動路由至 TWSE 或 TPEx OpenAPI。
+* **永豐金 T-1 數據模型擴充 (`YunfengChipData`)**:
+  - 新增 `chipDate`: 籌碼數據日期（如 '2026-07-22'）。
+  - 新增 `top15BuyVolume` / `top15SellVolume`: 永豐金 TOP15 分點買賣超張數。
+  - 新增 `isAutoFetched`: 標記數據是否來自官方 OpenAPI 自動抓取。
+* **風控算力 (`calculations.ts`)**:
+  - `evaluateYunfengChipRisk` 同時接收 T-1 籌碼日期與 TOP15 主力數據，在籌碼出現散戶接盤、主力大舉撤出時收緊防守價。
 
 ---
 
 ## 🧪 Testing Decisions (測試決策)
 
 * **測試範疇 (`calculations.test.ts`)**:
-  單元測試聚焦於外部行為而非內部實作，驗證：
-  1. 輸入籌碼偏空（集中度 < 0 且 法人賣超）時，`evaluateYunfengChipRisk` 回傳 `level: 'bearish'` 且 `atrMultiplier: 1.25`。
-  2. 集中度 > 10% 且大戶持股 > 50% 時，回傳 `level: 'bullish'` 且 `atrMultiplier: 2.5`。
-  3. 未輸入籌碼時，預設回傳 `level: 'neutral'` 且 `atrMultiplier: 2.0`。
-* **驗證目標**:
-  執行 `npx vitest run` 與 `npx tsc --noEmit`，必須保持 **100% PASS (零 Error)**。
+  - 驗證 TWSE 官方 API 數據解析與備用降級邏輯。
+  - 驗證 T-1 籌碼日期與即時價對齊時之 ATR 停利線計算。
+  - 確保 `npx vitest run` 保持 100% 綠燈 (PASS)。
 
 ---
 
 ## 🚫 Out of Scope (非本階段範疇)
 
-* 自動對外連結永豐金證券伺服器抓取個人私密帳戶庫存（基於資安與無 API 授權限制）。
-* 本階段不包含複雜的 OCR 圖片自動解析文字庫（採用輕量化填寫與模擬載入，保持高效載入速度與 PWA 順暢度）。
-
----
-
-## 📝 Further Notes (補充說明)
-
-* 本規格書符合 Matt Pocock Skills `/to-spec` 之標準模板，產出後直接寫入專案 `docs/SPEC_YUNFENG_CHIP_MODULE.md` 保存。
+* 不繞過永豐金 App 的驗證碼直接爬取個人下單紀錄（維護資安與隱私）。
+* 官方 API 若遇例假日或證交所維護，自動退回至前一交易日最新盤後公開數據。

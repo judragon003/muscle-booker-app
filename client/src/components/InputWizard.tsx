@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronRight, ChevronLeft, FileCheck } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileCheck, Globe, RefreshCw } from 'lucide-react';
 import type { YunfengChipData } from '@/lib/types';
+import { fetchOfficialChipData } from '@/lib/twseOpenApi';
 
 interface InputWizardProps {
   onSubmit?: (data: WizardData) => void;
@@ -234,34 +235,77 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
 
           {/* 步驟 D：永豐金籌碼數據與分點 */}
           <TabsContent value="chips" className="space-y-4">
-            <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-accent">📱 永豐金證券籌碼與分點填寫</p>
-                <p className="text-xs text-muted-foreground">可由永豐金 App 籌碼頁面填入或一鍵模擬導入數據</p>
+            <div className="bg-accent/10 border border-accent/30 rounded-lg p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-accent flex items-center gap-1.5">
+                    📱 永豐金 App 籌碼 & 官方開放資料對齊
+                    {data.yunfengChips.chipDate && (
+                      <span className="text-xs font-normal text-muted-foreground bg-background/60 px-2 py-0.5 rounded border border-border">
+                        籌碼基準日: {data.yunfengChips.chipDate} (T-1)
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    可一鍵自動從 TWSE/TPEx 官方 API 捕捉法人與大戶籌碼，或由永豐金 App 填入
+                  </p>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs flex items-center gap-1"
-                onClick={() => {
-                  setData(prev => ({
-                    ...prev,
-                    yunfengChips: {
-                      majorBrokerConcentration: 12.8,
-                      majorBrokerNetVolume: 2450,
-                      foreignNetBuy: 3200,
-                      investmentTrustNetBuy: 1100,
-                      dealerNetBuy: 350,
-                      largeHolder400Ratio: 72.4,
-                      largeHolder1000Ratio: 56.1,
-                      largeHolderChangeTrend: 'accumulate',
+
+              <div className="flex gap-2 pt-1">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="text-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold flex-1"
+                  onClick={async () => {
+                    const result = await fetchOfficialChipData(data.symbol);
+                    if (result.success) {
+                      setData(prev => ({
+                        ...prev,
+                        yunfengChips: {
+                          ...prev.yunfengChips,
+                          chipDate: result.chipDate,
+                          foreignNetBuy: result.foreignNetBuy,
+                          investmentTrustNetBuy: result.investmentTrustNetBuy,
+                          dealerNetBuy: result.dealerNetBuy,
+                          largeHolder400Ratio: result.largeHolder400Ratio,
+                          largeHolder1000Ratio: result.largeHolder1000Ratio,
+                          isAutoFetched: true,
+                        }
+                      }));
                     }
-                  }));
-                }}
-              >
-                <FileCheck className="w-3.5 h-3.5" />
-                帶入範例數據
-              </Button>
+                  }}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  一鍵自動抓取官方籌碼 (TWSE OpenAPI)
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs flex items-center gap-1"
+                  onClick={() => {
+                    setData(prev => ({
+                      ...prev,
+                      yunfengChips: {
+                        chipDate: '2026-07-22',
+                        majorBrokerConcentration: 13.91,
+                        majorBrokerNetVolume: 2450,
+                        foreignNetBuy: 23625,
+                        investmentTrustNetBuy: 1801,
+                        dealerNetBuy: -9196,
+                        largeHolder400Ratio: 72.4,
+                        largeHolder1000Ratio: 56.1,
+                        largeHolderChangeTrend: 'accumulate',
+                        isAutoFetched: false,
+                      }
+                    }));
+                  }}
+                >
+                  <FileCheck className="w-3.5 h-3.5" />
+                  帶入 0050 實測範例
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

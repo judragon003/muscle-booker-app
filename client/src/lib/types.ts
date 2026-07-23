@@ -4,14 +4,18 @@
 
 // ============ 永豐金籌碼數據 ============
 export interface YunfengChipData {
+  chipDate?: string;                // 籌碼日期 (T-1 日: 如 '2026-07-22')
   majorBrokerConcentration: number; // 主力集中度 %
   majorBrokerNetVolume: number;     // 主力買賣超 (張)
+  top15BuyVolume?: number;          // 永豐金 App TOP15 買超張數
+  top15SellVolume?: number;         // 永豐金 App TOP15 賣超張數
   foreignNetBuy: number;            // 外資買賣超 (張)
   investmentTrustNetBuy: number;    // 投信買賣超 (張)
   dealerNetBuy: number;             // 自營商買賣超 (張)
   largeHolder400Ratio: number;      // 400張大戶持股比率 (%)
   largeHolder1000Ratio: number;     // 1000張大戶持股比率 (%)
   largeHolderChangeTrend: 'accumulate' | 'distribute' | 'neutral';
+  isAutoFetched?: boolean;          // 是否由官方 OpenAPI 自動捕捉
 }
 
 // ============ 市場數據 ============
