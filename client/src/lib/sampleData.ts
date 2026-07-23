@@ -16,6 +16,7 @@ import {
   evaluateMAArrangement,
   evaluateKDCross,
   evaluateRSI,
+  evaluateYunfengChipRisk,
   calculateTrailingStopPrice,
   calculateAdditionTier1,
   calculateAdditionTier2,
@@ -147,6 +148,8 @@ export function generateRiskIndicators(
   const kdPrev = marketData.k - 5; // 模擬前一根 K 值
   const dPrev = marketData.d - 3; // 模擬前一根 D 值
 
+  const yunfengChipRisk = evaluateYunfengChipRisk(marketData.yunfengChips);
+
   return {
     cashRisk: evaluateCashRisk(account.cashRatio / 100),
     financingRisk: evaluateFinancingRisk(financingMarketValue, totalMarketValue),
@@ -158,10 +161,11 @@ export function generateRiskIndicators(
     ),
     kdCross: evaluateKDCross(kdPrev, dPrev, marketData.k, marketData.d),
     rsiLevel: evaluateRSI(marketData.rsi),
+    yunfengChipRisk,
     atrTrailingStop: calculateTrailingStopPrice(
       marketData.high,
       marketData.atr,
-      2,
+      yunfengChipRisk.atrMultiplier,
       marketData.ma60
     ),
   };

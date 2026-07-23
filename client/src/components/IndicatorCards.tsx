@@ -164,6 +164,26 @@ export function IndicatorCards({ riskIndicators, marketData }: IndicatorCardsPro
           </div>
         </CardContent>
       </Card>
+
+      {/* 永豐金籌碼風控卡片 */}
+      {riskIndicators.yunfengChipRisk && (
+        <Card className={`muscle-card border ${getIndicatorColor(riskIndicators.yunfengChipRisk.level)}`}>
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">永豐金籌碼風控</p>
+                <p className="text-2xl font-bold mt-1">{getStatusLight(riskIndicators.yunfengChipRisk.level)}</p>
+              </div>
+              <Zap className="w-5 h-5 opacity-50" />
+            </div>
+            <p className="text-sm font-medium">{riskIndicators.yunfengChipRisk.message}</p>
+            <div className="text-xs text-muted-foreground mt-2 space-y-1">
+              <p>ATR 防守倍數: <span className="text-accent font-bold">{riskIndicators.yunfengChipRisk.atrMultiplier}x</span></p>
+              <p>主力集中度: {marketData.yunfengChips?.majorBrokerConcentration ?? 0}%</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
