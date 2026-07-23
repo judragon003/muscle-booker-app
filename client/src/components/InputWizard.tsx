@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronRight, ChevronLeft, FileCheck, Globe, RefreshCw } from 'lucide-react';
+import { ChevronRight, ChevronLeft, FileCheck, Globe, RefreshCw, Zap } from 'lucide-react';
 import type { YunfengChipData } from '@/lib/types';
-import { fetchOfficialChipData } from '@/lib/twseOpenApi';
+import { fetchOfficialFullData } from '@/lib/twseOpenApi';
 
 interface InputWizardProps {
   onSubmit?: (data: WizardData) => void;
@@ -256,12 +256,13 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
                 <Button
                   variant="default"
                   size="sm"
-                  className="text-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold flex-1"
+                  className="text-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold flex-1 shadow-sm"
                   onClick={async () => {
-                    const result = await fetchOfficialChipData(data.symbol);
+                    const result = await fetchOfficialFullData(data.symbol);
                     if (result.success) {
                       setData(prev => ({
                         ...prev,
+                        currentPrice: result.currentPrice,
                         yunfengChips: {
                           ...prev.yunfengChips,
                           chipDate: result.chipDate,
@@ -277,7 +278,7 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
                   }}
                 >
                   <Globe className="w-3.5 h-3.5" />
-                  一鍵自動抓取官方籌碼 (TWSE OpenAPI)
+                  一鍵自動抓取官方全套資料 (TWSE OpenAPI)
                 </Button>
 
                 <Button

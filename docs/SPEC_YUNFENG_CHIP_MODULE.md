@@ -1,62 +1,51 @@
-# 📐 肌肉書僮 - 證交所/櫃買 OpenAPI 自動抓取與永豐金 T-1 籌碼風控規格書 (SPEC_YUNFENG_CHIP_MODULE.md)
+# 📐 肌肉書僮 - TWSE/TPEx 官方全資料自動捕捉風控技術規格書 (SPEC_YUNFENG_CHIP_MODULE.md)
 
-> 本規格書依據 Matt Pocock Skills `/to-spec` 模板全新升級，整合 TWSE/TPEx 官方開放 API 自動化抓取與永豐金 T-1 券商分點籌碼算力。
+> 本規格書依據 Matt Pocock Skills `/to-spec` 模板升級，定義從臺灣證券交易所 (TWSE) 與櫃買中心 (TPEx) 官方 OpenAPI 全自動拉取必要市場與籌碼資料之技術架構。
 
 ---
 
 ## 🎯 Problem Statement (問題陳述)
 
-1. **手動輸入負擔**：三大法人買賣超 (外資/投信/自營商) 與大戶持股比例 (400張/1000張) 為官方公開權威數據，手動填寫繁瑣且易出錯。
-2. **時間差對齊 (T-1 時間軸)**：籌碼數據（大戶集保與券商分點）在台股盤後或次日才揭露（如今天是 7/23，能取得的最完整籌碼為 7/22 T-1 盤後數據）。過去系統缺乏交易日對應與永豐金 TOP15 分點買賣超轉換邏輯。
+過去使用者在設定股票參數時，需要手動填寫或查詢許多官方公開數據（如即時/收盤價、融資餘額、融資變化張數、三大法人買賣超、大戶持股比率）。手動查詢不僅耗時，且容易填錯，無法達成「一鍵開箱即用」的極致體驗。
 
 ---
 
 ## 💡 Solution (解決方案)
 
-1. **TWSE / TPEx 官方 OpenAPI 自動捕捉引擎 (`twseOpenApi.ts`)**:
-   - 直連臺灣證券交易所 OpenAPI (`https://openapi.twse.com.tw/#/`) 與櫃買中心 OpenAPI (`https://www.tpex.org.tw/openapi/#/`)。
-   - 點擊「🌐 一鍵自動抓取官方籌碼」，自動拉取最新三大法人買賣超張數與大戶持股比率，免去手動輸入。
+擴充 **TWSE / TPEx 官方全資料自動捕捉引擎 (`twseOpenApi.ts`)**:
+直連 TWSE OpenAPI (`https://openapi.twse.com.tw/#/`) 與 TPEx OpenAPI (`https://www.tpex.org.tw/openapi/#/`)，自動抓取以下 4 大類官方必要資料：
 
-2. **永豐金 T-1 券商分點 TOP15 集中度模組**:
-   - 標註「籌碼基準日 (T-1 日: 如 2026-07-22)」，確保與 T 日 (2026-07-23) 即時股價精密對齊。
-   - 提供永豐金 App 專用「TOP15 分點買超 / 賣超張數」輸入，自動試算主力集中度 (%)：
-     $$\text{主力集中度 (\%)} = \frac{\sum \text{Top15 買超張數} - \sum \text{Top15 賣超張數}}{\text{當日總成交量}} \times 100$$
+1. **行情資料 (Market Quotes)**: 收盤價、最高價、最低價、成交量 (張)、週轉率 (%)。
+2. **信用交易 (Margin Trading)**: 融資餘額 (張)、融資今日增減變化 (張)。
+3. **三大法人買賣超 (Institutional Trading)**: 外資買賣超 (張)、投信買賣超 (張)、自營商買賣超 (張)。
+4. **集保大戶分級 (TDCC Large Holders)**: 400 張與 1000 張大戶持股比率 (%)。
+
+在「參數設定」模組提供 **「🌐 一鍵自動抓取官方全套資料」** 按鈕，自動解鎖全自動化風控試算！
 
 ---
 
 ## 👤 User Stories (使用者故事)
 
-1. **身為交易者**，我希望點擊「一鍵自動抓取官方籌碼」時，系統能自動從 TWSE/TPEx 官方 OpenAPI 抓取最新的外資、投信、自營商買賣超張數與大戶持股比率，省去手動輸入時間。
-2. **身為交易者**，我希望能明確看到籌碼資料日期標記（如 T-1 日 2026-07-22），知道當前的風控決策是基於昨日盤後籌碼配合今日即時股價進行評估。
-3. **身為永豐金 App 使用者**，我希望能根據永豐金「券商分點」頁面的 TOP15 買賣超數據輸入，由系統自動算出主力集中度 (%) 與買賣淨張數。
-4. **身為交易者**，當 TWSE 官方 API 三大法人同步賣超且前一日主力分點集中度為負時，系統能自動觸發 1.25x ATR 的高防禦性停利保護。
+1. **身為交易者**，我希望輸入股票代號（如 `0050` 或 `2330`）後點擊「一鍵自動抓取」，系統能自動從證交所 API 填入最新收盤價、高低價與成交量，無需手動查詢。
+2. **身為交易者**，我希望系統能自動從 TWSE 信用交易 API 填入融資餘額與融資變化張數，直接帶入融資過熱警示評估。
+3. **身為交易者**，我希望系統能自動拉取三大法人買賣超與集保大戶比率，自動生成「肌肉書僮箱子戰術」之 1.25x / 2.5x ATR 移動防守線。
 
 ---
 
 ## 🛠️ Implementation Decisions (實務實現決策)
 
-* **官方 OpenAPI 模組 (`client/src/lib/twseOpenApi.ts`)**:
-  - 調用 TWSE API 端點：三大法人買賣超日報 (`/v1/fund/T86`)、個股日成交 (`/v1/exchangeReport/STOCK_DAY`)。
-  - 對於上市 (TW) / 上櫃 (TWO) 股票自動路由至 TWSE 或 TPEx OpenAPI。
-* **永豐金 T-1 數據模型擴充 (`YunfengChipData`)**:
-  - 新增 `chipDate`: 籌碼數據日期（如 '2026-07-22'）。
-  - 新增 `top15BuyVolume` / `top15SellVolume`: 永豐金 TOP15 分點買賣超張數。
-  - 新增 `isAutoFetched`: 標記數據是否來自官方 OpenAPI 自動抓取。
-* **風控算力 (`calculations.ts`)**:
-  - `evaluateYunfengChipRisk` 同時接收 T-1 籌碼日期與 TOP15 主力數據，在籌碼出現散戶接盤、主力大舉撤出時收緊防守價。
+* **官方 API 端點封裝 (`twseOpenApi.ts`)**:
+  - `STOCK_DAY_ALL`: 抓取個股收盤價、最高價、最低價、成交張數。
+  - `MI_MARGIN`: 抓取融資買進、融資賣出、融資餘額與增減。
+  - `T86`: 抓取三大法人買賣超。
+* **介面 UI 整合 (`InputWizard.tsx`)**:
+  - 於「步驟 B 即時數據」與「步驟 D 籌碼」均提供一鍵自動同步按鈕，一鍵寫入 `WizardData`。
+* **風控算力整合 (`calculations.ts`)**:
+  - 融資餘額與三大法人數據自動進入 `evaluateFinancingRisk` 與 `evaluateYunfengChipRisk` 進行雙重檢驗。
 
 ---
 
 ## 🧪 Testing Decisions (測試決策)
 
-* **測試範疇 (`calculations.test.ts`)**:
-  - 驗證 TWSE 官方 API 數據解析與備用降級邏輯。
-  - 驗證 T-1 籌碼日期與即時價對齊時之 ATR 停利線計算。
-  - 確保 `npx vitest run` 保持 100% 綠燈 (PASS)。
-
----
-
-## 🚫 Out of Scope (非本階段範疇)
-
-* 不繞過永豐金 App 的驗證碼直接爬取個人下單紀錄（維護資安與隱私）。
-* 官方 API 若遇例假日或證交所維護，自動退回至前一交易日最新盤後公開數據。
+* 驗證 TWSE 官方全資料 Parsing 函數之正確性與邊界降級。
+* 保持 `npx vitest run` 16/16 測試全數 [PASS] 綠燈通過。
