@@ -1,69 +1,77 @@
-# 🎫 肌肉書僮 - 永豐金籌碼模組開發任務拆解清單 (TICKETS_YUNFENG_CHIP_MODULE.md)
+# 🎫 肌肉書僮 - 官方全資料自動捕捉與永豐金籌碼開發任務拆解單 (TICKETS_YUNFENG_CHIP_MODULE.md)
 
-> 本任務清單遵循 Matt Pocock Skills 之 `/to-tickets` 垂直切片 (Tracer-bullet vertical slices) 規範編寫，每一切片皆聲明其依賴阻擋項 (Blocked by) 與驗收標準 (Acceptance Criteria)。
+> 本任務清單遵循 Matt Pocock Skills `/to-tickets` 垂直切片 (Tracer-bullet vertical slices) 規範編寫，聲明每項 Ticket 之前置阻擋條件 (Blocked by) 與驗收標準 (Acceptance Criteria)。
 
 ---
 
 ## 📌 任務狀態與依賴樹總覽 (Task Dependency Tree)
 
 ```text
-[TK-01] 型別與介面定義 (Blocked by: None) [COMPLETED]
-   ├── [TK-02] InputWizard 步驟 D 籌碼介面 (Blocked by: TK-01) [COMPLETED]
-   └── [TK-03] 籌碼風控算法 evaluateYunfengChipRisk (Blocked by: TK-01) [COMPLETED]
-          └── [TK-04] 單元測試 (16 Tests PASS) (Blocked by: TK-02, TK-03) [COMPLETED]
-                 └── [TK-05] 線上建置與 CI/CD 推送 (Blocked by: TK-04) [COMPLETED]
+[TK-01] 型別與介面定義 (YunfengChipData & FullFetchResult) (Blocked by: None) [COMPLETED]
+   ├── [TK-02] InputWizard 步驟 D 永豐金籌碼與官方 API 按鈕 UI (Blocked by: TK-01) [COMPLETED]
+   ├── [TK-03] TWSE/TPEx OpenAPI 官方全資料捕捉模組 twseOpenApi.ts (Blocked by: TK-01) [COMPLETED]
+   └── [TK-04] 風控算法 evaluateYunfengChipRisk 與 ATR 縮緊連動 (Blocked by: TK-01) [COMPLETED]
+          └── [TK-05] 16 項單元測試綠燈 (calculations.test.ts) (Blocked by: TK-02~TK-04) [COMPLETED]
+                 └── [TK-06] 線上 Build 打包與 GitHub CI/CD 推送 (Blocked by: TK-05) [COMPLETED]
 ```
 
 ---
 
 ## 📝 垂直切片任務詳情 (Tracer-Bullet Vertical Slices)
 
-### 🔹 TK-01 — 定義 `YunfengChipData` 型別與全域整合
-* **所要建置的內容 (What to build)**: 於 `types.ts` 定義永豐金籌碼資料型別介面，包含主力集中度 (%)、三大法人買賣超 (張) 與 400/1000張大戶持股比率 (%)。
+### 🔹 TK-01 — 定義 `YunfengChipData` 與 `OfficialFullFetchResult` 型別
+* **所要建置的內容 (What to build)**: 於 `types.ts` 定義 `YunfengChipData` 與 `twseOpenApi.ts` 之 `OfficialFullFetchResult` 型別，支援 T-1 日期標籤、TOP15 分點與官方自動拉取標記。
 * **前置阻擋 (Blocked by)**: None (可立即開始)
 * **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
 * **驗收標準 (Acceptance Criteria)**:
-  - [x] `YunfengChipData` 介面包含所有 8 項真實籌碼欄位。
-  - [x] `MarketData` 與 `RiskIndicators` 已擴充 `yunfengChips` 屬性。
+  - [x] 介面涵蓋行情、融資餘額、三大法人買賣超與集保大戶比率。
   - [x] TypeScript `npx tsc --noEmit` 編譯 0 錯誤。
 
 ---
 
-### 🔹 TK-02 — 實作 `InputWizard.tsx` 「步驟 D 永豐金籌碼」 UI 卡片
-* **所要建置的內容 (What to build)**: 在參數設定卡片中新增 Step D，提供主力集中度、法人買賣超、大戶比率輸入框，並提供「帶入範例數據」按鈕。
+### 🔹 TK-02 — 實作 `InputWizard.tsx` 「🌐 抓取 TWSE 官方全套資料」 UI 按鈕
+* **所要建置的內容 (What to build)**: 在步驟 D 新增一鍵抓取按鈕，點擊後調用官方 OpenAPI 填入即時價、高低價、成交量、法人買賣超與大戶比率。
 * **前置阻擋 (Blocked by)**: TK-01
 * **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
 * **驗收標準 (Acceptance Criteria)**:
-  - [x] 導覽列改為四步驟（A 標的庫存 / B 即時數據 / C 摩擦成本 / D 永豐金籌碼）。
-  - [x] 點擊「帶入範例數據」能填寫 12.8% 主力集中度與 3,200 張外資買賣超。
-  - [x] 點擊「開始分析 (帶入永豐金籌碼)」能觸發 `onSubmit` 並收合視窗。
+  - [x] 按鈕呈現在 Step D 頂部，一鍵填入官方全套市場與籌碼數據。
+  - [x] 顯示 `籌碼基準日: YYYY-MM-DD (T-1)` 標籤。
 
 ---
 
-### 🔹 TK-03 — 實作 `evaluateYunfengChipRisk` 籌碼箱子風控算力
-* **所要建置的內容 (What to build)**: 於 `calculations.ts` 撰寫籌碼評估算法。當主力集中度與法人賣超時，自動將 ATR 移動停利倍數縮緊至 1.25 倍。
+### 🔹 TK-03 — 建立 TWSE / TPEx 官方 OpenAPI 直連模組 `twseOpenApi.ts`
+* **所要建置的內容 (What to build)**: 封裝免費免 Key 的證交所 API (STOCK_DAY_ALL / T86 / MI_MARGIN)，自動解析即時價量、法人買賣超與信用交易。
 * **前置阻擋 (Blocked by)**: TK-01
 * **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
 * **驗收標準 (Acceptance Criteria)**:
-  - [x] 能正確評估偏空 (`bearish`)、偏多 (`bullish`) 與中性 (`neutral`) 籌碼情境。
-  - [x] 偏空時回傳 `atrMultiplier: 1.25` 進行嚴格防守。
+  - [x] 成功解析 TWSE 官方 JSON 數據。
+  - [x] 提供網路受阻時之安全備用降級帶入，確保 100% 不崩潰。
 
 ---
 
-### 🔹 TK-04 — 撰寫單元測試並達成 100% 綠燈閉環
-* **所要建置的內容 (What to build)**: 於 `calculations.test.ts` 撰寫 `evaluateYunfengChipRisk` 行為測試。
-* **前置阻擋 (Blocked by)**: TK-02, TK-03
+### 🔹 TK-04 — 整合 `evaluateYunfengChipRisk` 與 ATR 移動停利線連動
+* **所要建置的內容 (What to build)**: 於 `calculations.ts` 與 `sampleData.ts` 中將籌碼結果傳回 `atrMultiplier`（1.25x 縮緊 / 2.5x 放寬），並在 `IndicatorCards.tsx` 中顯示「永豐金籌碼風控」卡片。
+* **前置阻擋 (Blocked by)**: TK-01
 * **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
 * **驗收標準 (Acceptance Criteria)**:
-  - [x] 新增籌碼風險評估之 14 項測試全數呈現 `✓ passed` 綠燈。
-  - [x] 執行 `npx vitest run` 在 2 秒內完美通過。
+  - [x] 主力賣超自動觸發 1.25x ATR 移動停利線。
+  - [x] 風控燈號卡片精確展示評價與防守倍數。
 
 ---
 
-### 🔹 TK-05 — 推送 Commit 並觸發線上正式部署
-* **所要建置的內容 (What to build)**: 將最新代碼與規格書 Commit 推送至 GitHub (`main` 分支)，觸發 Netlify/Vercel 自動部署。
-* **前置阻擋 (Blocked by)**: TK-04
+### 🔹 TK-05 — 撰寫 16 項全域單元測試並達成綠燈閉環
+* **所要建置的內容 (What to build)**: 於 `calculations.test.ts` 撰寫籌碼與指標行為測試。
+* **前置阻擋 (Blocked by)**: TK-02, TK-03, TK-04
 * **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
 * **驗收標準 (Acceptance Criteria)**:
-  - [x] 程式碼及 docs 文件成功推送到 GitHub 倉庫 (`judragon003/muscle-booker-app`)。
-  - [x] 線上 Production 網站完成部署可正常運行。
+  - [x] **16 / 16 項 Vitest 測試全數 [PASS] 綠燈通過**。
+
+---
+
+### 🔹 TK-06 — 全專案 Production Build 打包與 CI/CD 部署
+* **所要建置的內容 (What to build)**: 執行 `npm run build` 打包 `dist/public/` 並推送至 GitHub 主分支。
+* **前置阻擋 (Blocked by)**: TK-05
+* **狀態 (Status)**: `ready-for-agent` `[COMPLETED]`
+* **驗收標準 (Acceptance Criteria)**:
+  - [x] 生成 `index-Ds8YlkfX.js` 打包檔。
+  - [x] 成功推送到 GitHub 倉庫 (`judragon003/muscle-booker-app`)，觸發 Netlify 自動上線。
