@@ -7,11 +7,11 @@
 ## 📌 任務狀態與依賴樹總覽 (Task Dependency Tree)
 
 ```text
-[TK-01] 型別與介面定義 (Blocked by: None)
-   └── [TK-02] InputWizard 步驟 D 籌碼介面 (Blocked by: TK-01)
-   └── [TK-03] 籌碼風控算法 evaluateYunfengChipRisk (Blocked by: TK-01)
-          └── [TK-04] 單元測試 (14 Tests PASS) (Blocked by: TK-02, TK-03)
-                 └── [TK-05] 線上建置與 CI/CD 推送 (Blocked by: TK-04)
+[TK-01] 型別與介面定義 (Blocked by: None) [COMPLETED]
+   ├── [TK-02] InputWizard 步驟 D 籌碼介面 (Blocked by: TK-01) [COMPLETED]
+   └── [TK-03] 籌碼風控算法 evaluateYunfengChipRisk (Blocked by: TK-01) [COMPLETED]
+          └── [TK-04] 單元測試 (16 Tests PASS) (Blocked by: TK-02, TK-03) [COMPLETED]
+                 └── [TK-05] 線上建置與 CI/CD 推送 (Blocked by: TK-04) [COMPLETED]
 ```
 
 ---
