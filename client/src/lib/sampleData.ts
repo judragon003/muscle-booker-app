@@ -26,17 +26,15 @@ import {
  * 生成示例市場數據（0050 元大台灣50）
  */
 export function generateSampleMarketData(): MarketData {
-  // 模擬最近 60 天的價格數據
-  const prices: number[] = [];
-  let price = 95;
-  for (let i = 0; i < 60; i++) {
-    const change = (Math.random() - 0.5) * 2; // ±1% 隨機波動
-    price = Math.max(price + change, 90);
-    prices.push(parseFloat(price.toFixed(2)));
-  }
+  // 基準價格數據（0050 元大台灣50 確定行情歷史，避免 Math.random 亂數跳動）
+  const basePrice = 103.0;
+  const prices: number[] = [
+    95.2, 96.1, 95.8, 97.0, 98.2, 97.9, 99.1, 100.5, 101.2, 100.8,
+    102.0, 101.5, 103.1, 102.8, 104.0, 103.5, 102.9, 103.8, 104.2, 103.0
+  ];
 
-  const currentPrice = prices[prices.length - 1];
-  const previousClose = prices[prices.length - 2];
+  const currentPrice = basePrice;
+  const previousClose = 102.5;
 
   // 計算技術指標
   const ma5 = calculateSMA(prices, 5);

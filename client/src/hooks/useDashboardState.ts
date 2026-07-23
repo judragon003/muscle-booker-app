@@ -8,10 +8,12 @@ import type { WizardData } from '@/components/InputWizard';
 import {
   generateSampleDashboardState,
   generateSampleMarketData,
+  generateSampleAccount,
   generateRiskIndicators,
   generateTradeActions
 } from '@/lib/sampleData';
 import { calculateNetPnL } from '@/lib/calculations';
+import { fetchRealStockData } from '@/lib/stockApi';
 
 export function useDashboardState() {
   const [state, setState] = useState<DashboardState | null>(null);
@@ -109,19 +111,33 @@ export function useDashboardState() {
     setState(prev => prev ? { ...prev, tradeActions, lastUpdated: new Date() } : null);
   }, []);
 
-  // 刷新整個狀態
-  const refresh = useCallback(() => {
+  // 刷新整個狀態（抓取真實即時行情）
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const newState = generateSampleDashboardState();
-      setState(newState);
+      const currentSymbol = state?.marketData.symbol || '0050';
+      const realMarketData = await fetchRealStockData(currentSymbol);
+      
+      setState(prev => {
+        if (!prev) return generateSampleDashboardState();
+        const account = generateSampleAccount(realMarketData);
+        const riskIndicators = generateRiskIndicators(account, realMarketData);
+        const tradeActions = generateTradeActions(account, realMarketData, riskIndicators);
+        return {
+          account,
+          marketData: realMarketData,
+          riskIndicators,
+          tradeActions,
+          lastUpdated: new Date(),
+        };
+      });
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : '刷新失敗');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [state?.marketData.symbol]);
 
   return {
     state,
