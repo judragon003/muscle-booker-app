@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - Bug 根因診斷與排查
+name: Bug 根因診斷與排查
 description: 根據控制台日誌與錯誤追蹤棧，第一性原理定位程式 Bug 並給出根治解決方案。
 ---
 

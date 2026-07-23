@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 領域模型與 TypeScript 型別設計
+name: 領域模型與 TypeScript 型別設計
 description: 打造強型別、高防禦性的領域數據模型 (Domain Models) 與 TypeScript 介面定義。
 ---
 

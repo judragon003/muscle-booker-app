@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 互動式設計拷問 (grill-me)
+name: 互動式設計拷問 (grill-me)
 description: 透過一問一答的深層訪談機制，釐清需求細節、邊界情況與依賴項，避免過度工程化。
 disable-model-invocation: true
 ---

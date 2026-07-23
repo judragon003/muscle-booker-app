@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 專案地圖與檔案導航
+name: 專案地圖與檔案導航
 description: 快速掃描專案目錄結構，精確定位關鍵組件與業務邏輯位置。
 disable-model-invocation: true
 ---

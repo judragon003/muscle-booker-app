@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 深度代碼審查 (code-review)
+name: 深度代碼審查 (code-review)
 description: 針對程式碼品質、型別安全性、效能瓶頸與潛在風險進行資深專家級審查。
 ---
 

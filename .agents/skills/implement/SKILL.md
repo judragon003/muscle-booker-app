@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 任務引導與實作 (implement)
+name: 任務引導與實作 (implement)
 description: 引導並精準執行特定的開發任務 (Ticket)，確保單元測試 100% 通過與 Git 正確提交。
 disable-model-invocation: true
 ---

@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - TDD 測試驅動開發
+name: TDD 測試驅動開發
 description: Matt Pocock 專屬 TDD 測試驅動開發技能。遵照 Red-Green-Refactor 閉環，確保在改動程式碼前完成單元測試覆蓋。
 ---
 

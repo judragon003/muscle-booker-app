@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 開發任務拆解單 (to-tickets)
+name: 開發任務拆解單 (to-tickets)
 description: 將技術規格 (SPEC) 拆解為可被獨立執行、帶有優先級與驗證標準的開發任務清單 (TICKETS.md)。
 disable-model-invocation: true
 ---

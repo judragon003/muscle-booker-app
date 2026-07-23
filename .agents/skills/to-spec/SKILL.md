@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 技術規格轉化器 (to-spec)
+name: 技術規格轉化器 (to-spec)
 description: 將模糊的需求或討論轉化為高質量、結構嚴謹的 Markdown 技術規格檔案 (SPEC.md)。
 disable-model-invocation: true
 ---

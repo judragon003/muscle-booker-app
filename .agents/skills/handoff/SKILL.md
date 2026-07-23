@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 綠燈任務交接報告
+name: 綠燈任務交接報告
 description: 生成包含單元測試 PASS 證明、覆蓋率與 Commit 記錄的高質量交接報告。
 argument-hint: "What will the next session be used for?"
 disable-model-invocation: true

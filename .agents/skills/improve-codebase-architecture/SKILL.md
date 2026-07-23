@@ -1,5 +1,5 @@
 ---
-name: Matt Pocock - 專案架構改善與演進
+name: 專案架構改善與演進
 description: 評估與重構專案架構，降低模組耦合度並提升可維護性。
 disable-model-invocation: true
 ---
