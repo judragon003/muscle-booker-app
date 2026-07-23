@@ -1,0 +1,2 @@
+# Netlify API Proxy Redirects for TWSE OpenAPI (Eliminates CORS 100%)
+/api/twse/* https://openapi.twse.com.tw/v1/:splat 200!
