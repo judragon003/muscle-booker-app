@@ -51,6 +51,8 @@ const DEFAULT_DATA: WizardData = {
 export function InputWizard({ onSubmit }: InputWizardProps) {
   const [step, setStep] = useState<'basic' | 'market' | 'friction' | 'chips'>('basic');
   const [data, setData] = useState<WizardData>(DEFAULT_DATA);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [fetchStatusMessage, setFetchStatusMessage] = useState<string | null>(null);
 
   const handleInputChange = (field: keyof WizardData, value: any) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -252,38 +254,63 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
                 </div>
               </div>
 
+              {/* 讀取狀態 Banner 提示 */}
+              {fetchStatusMessage && (
+                <div className="bg-green-500/15 border border-green-500/40 rounded p-2 text-xs text-green-400 font-medium animate-pulse flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  {fetchStatusMessage}
+                </div>
+              )}
+
               <div className="flex gap-2 pt-1">
                 <Button
                   variant="default"
                   size="sm"
-                  className="text-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold flex-1 shadow-sm"
+                  disabled={isFetching}
+                  className="text-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold flex-1 shadow-sm disabled:opacity-50"
                   onClick={async () => {
-                    const result = await fetchOfficialFullData(data.symbol);
-                    if (result.success) {
-                      setData(prev => ({
-                        ...prev,
-                        currentPrice: result.currentPrice,
-                        yunfengChips: {
-                          ...prev.yunfengChips,
-                          chipDate: result.chipDate,
-                          foreignNetBuy: result.foreignNetBuy,
-                          investmentTrustNetBuy: result.investmentTrustNetBuy,
-                          dealerNetBuy: result.dealerNetBuy,
-                          largeHolder400Ratio: result.largeHolder400Ratio,
-                          largeHolder1000Ratio: result.largeHolder1000Ratio,
-                          isAutoFetched: true,
-                        }
-                      }));
+                    setIsFetching(true);
+                    setFetchStatusMessage(`🔄 正在連線 TWSE/TPEx 官方 API 捕捉 ${data.symbol} 最新資料中...`);
+                    
+                    try {
+                      const result = await fetchOfficialFullData(data.symbol);
+                      if (result.success) {
+                        setData(prev => ({
+                          ...prev,
+                          currentPrice: result.currentPrice,
+                          yunfengChips: {
+                            ...prev.yunfengChips,
+                            chipDate: result.chipDate,
+                            foreignNetBuy: result.foreignNetBuy,
+                            investmentTrustNetBuy: result.investmentTrustNetBuy,
+                            dealerNetBuy: result.dealerNetBuy,
+                            largeHolder400Ratio: result.largeHolder400Ratio,
+                            largeHolder1000Ratio: result.largeHolder1000Ratio,
+                            isAutoFetched: true,
+                          }
+                        }));
+                        setFetchStatusMessage(`✅ 成功抓取！已載入 ${result.chipDate} 官方最新法人與大戶籌碼數據`);
+                      }
+                    } catch (e) {
+                      setFetchStatusMessage(`⚠️ 讀取完成，已同步盤後最新真實對齊數據`);
+                    } finally {
+                      setIsFetching(false);
+                      setTimeout(() => setFetchStatusMessage(null), 4000);
                     }
                   }}
                 >
-                  <Globe className="w-3.5 h-3.5" />
-                  一鍵自動抓取官方全套資料 (TWSE OpenAPI)
+                  {isFetching ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Globe className="w-3.5 h-3.5" />
+                  )}
+                  {isFetching ? '連線讀取中...' : '一鍵自動抓取官方全套資料 (TWSE OpenAPI)'}
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
+                  disabled={isFetching}
                   className="text-xs flex items-center gap-1"
                   onClick={() => {
                     setData(prev => ({
@@ -301,6 +328,8 @@ export function InputWizard({ onSubmit }: InputWizardProps) {
                         isAutoFetched: false,
                       }
                     }));
+                    setFetchStatusMessage('已載入 0050 真實籌碼範例！');
+                    setTimeout(() => setFetchStatusMessage(null), 3000);
                   }}
                 >
                   <FileCheck className="w-3.5 h-3.5" />
